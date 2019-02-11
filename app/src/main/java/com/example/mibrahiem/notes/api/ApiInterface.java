@@ -1,4 +1,8 @@
-package com.example.mibrahiem.notes;
+package com.example.mibrahiem.notes.api;
+
+import com.example.mibrahiem.notes.model.Note;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -16,5 +20,8 @@ public interface ApiInterface {
             @Field("color") int color
 
             );
+
+    @POST("notes.php")
+    Call<List<Note>> getNotes();
 
 }

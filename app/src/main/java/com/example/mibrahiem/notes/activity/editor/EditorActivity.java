@@ -1,17 +1,19 @@
-package com.example.mibrahiem.notes;
+package com.example.mibrahiem.notes.activity.editor;
 
 import android.app.ProgressDialog;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.mibrahiem.notes.api.ApiClient;
+import com.example.mibrahiem.notes.api.ApiInterface;
+import com.example.mibrahiem.notes.model.Note;
+import com.example.mibrahiem.notes.R;
 import com.thebluealliance.spectrum.SpectrumPalette;
 
 import retrofit2.Call;
@@ -19,11 +21,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class EditorActivity extends AppCompatActivity {
+public class EditorActivity extends AppCompatActivity implements EditorView {
 EditText et_title, et_note;
 ProgressDialog progressDialog;
-ApiInterface apiInterface;
-SpectrumPalette palette;
+EditorPresenter presenter;
+ SpectrumPalette palette;
 int color;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,10 +45,14 @@ int color;
         palette.setSelectedColor(getResources().getColor(R.color.white));
         color = getResources().getColor(R.color.white);
 
+
         //progress dialog
 
         progressDialog =new ProgressDialog(this);
         progressDialog.setMessage("Please Wait .");
+
+        presenter=new EditorPresenter(this);
+
     }
 
     @Override
@@ -76,7 +82,7 @@ int color;
                                 et_note.setError("Enter The Note");
                         }
                     else {
-                            saveNote(title, note, color);
+                           presenter.saveNote(title, note, color);
                         }
                 return true;
 
@@ -84,41 +90,32 @@ int color;
         }
     }
 
-    private void saveNote(final  String title,final String note,final int color) {
 
+    @Override
+    public void showProgress() {
         progressDialog.show();
-        apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
-        Call<Note> call = apiInterface.saveNote(title,note,color);
-        call.enqueue(new Callback<Note>() {
-            @Override
-            public void onResponse(@NonNull Call<Note> call, @NonNull Response<Note> response) {
-                progressDialog.dismiss();
-                if(response.isSuccessful() && response.body() != null){
-                Boolean success=response.body().getSuccess();
-                if(success){
-                    Toast.makeText(EditorActivity.this, ""+response
-                            .body().getMessage()
-                            , Toast.LENGTH_SHORT).show();
+    }
 
-                    finish();
-                }
-                else {
-                    Toast.makeText(EditorActivity.this, ""+response
-                                    .body().getMessage()
-                            , Toast.LENGTH_SHORT).show();
+    @Override
+    public void hideProgress() {
+        progressDialog.hide();
+    }
 
-                 }
-                }
-            }
+    @Override
+    public void onAddSuccess(String message) {
 
-            @Override
-            public void onFailure(@NonNull Call<Note> call, @NonNull Throwable t) {
-                progressDialog.dismiss();
-                Toast.makeText(EditorActivity.this,  t.getLocalizedMessage()
-                        , Toast.LENGTH_LONG).show();
-              }
-        });
+                        Toast.makeText(EditorActivity.this, message
+                                , Toast.LENGTH_SHORT).show();
+
+                        finish();
+
 
     }
 
+    @Override
+    public void onAddError(String message) {
+
+        Toast.makeText(EditorActivity.this, message
+                , Toast.LENGTH_SHORT).show();
+    }
 }
