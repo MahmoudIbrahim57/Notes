@@ -19,6 +19,7 @@ public class MainPresenter {
     }
 
     void getData() {
+
         view.showLoading();
 
         //request Server

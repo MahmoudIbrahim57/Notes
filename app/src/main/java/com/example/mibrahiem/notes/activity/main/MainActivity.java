@@ -16,7 +16,9 @@ import com.example.mibrahiem.notes.model.Note;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MainView {
-FloatingActionButton fab;
+    private static final int INTENT_EDIT = 200;
+    private static final int INTENT_ADD = 100;
+    FloatingActionButton fab;
 RecyclerView  recyclerView;
 SwipeRefreshLayout swipeRefresh;
 MainPresenter presenter;
@@ -31,24 +33,42 @@ List<Note> note;
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+
         fab =findViewById(R.id.add);
         fab.setOnClickListener(view ->
-        startActivity(new Intent(this,EditorActivity.class))
+        startActivityForResult(new Intent(this,EditorActivity.class),INTENT_ADD)
 
         );
+
         presenter =new MainPresenter(this);
-        presenter.getData();
         swipeRefresh.setOnRefreshListener(
             () -> presenter.getData()
         );
         itemClickListener =((view, position) ->
         {
 
-        String message=note.get(position).getTitle();
-            Toast.makeText(this, ""+message, Toast.LENGTH_SHORT).show();
+            int id=note.get(position).getId();
+            String title=note.get(position).getTitle();
+            String notes=note.get(position).getNote();
+            String date=note.get(position).getDate();
+            int  color=note.get(position).getColor();
+            Intent intent=new Intent(this,EditorActivity.class);
+            intent.putExtra("id",id);
+            intent.putExtra("title",title);
+            intent.putExtra("notes",notes);
+            intent.putExtra("date",date);
+            intent.putExtra("color",color);
+
+            startActivityForResult(intent,INTENT_EDIT);
 
         }
         );
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
+        presenter.getData();
+
     }
 
     @Override
@@ -74,6 +94,7 @@ swipeRefresh.setRefreshing(false);
 
     @Override
     public void onErrorLoading(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
 
     }
 }
