@@ -124,7 +124,7 @@ Menu actionMenue;
 
             case R.id.delete:
                 AlertDialog.Builder dialog= new AlertDialog.Builder(this);
-                dialog.setTitle("Confirm");
+                dialog.setTitle("Delete Note");
                 dialog.setMessage("are you sure !");
                 dialog.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
